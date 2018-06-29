@@ -2,19 +2,32 @@
   <div ref="discordIconRootElement" id="icongen">
     <svg class="icon" :height="size" :width="size">
       <g>
-        <ellipse fill="#FF0000" stroke="#000000" cx="64" cy="64" rx="63" ry="63"/>
-        <ellipse fill="#FFFF00" stroke="#000000" cx="64" cy="64" :rx="getRingSize1" :ry="getRingSize1"/>
-        <ellipse fill="#FFFFFF" stroke="#000000" cx="64" cy="64" :rx="getRingSize2" :ry="getRingSize2"/>
+        <mask id="mask-spikes">
+          <rect width="100%" height="100%" fill="#000000"/>
+          <path class="pathElement" fill="#FFFFFF"/>
+          <path class="pathElement" fill="#FFFFFF"/>
+          <path class="pathElement" fill="#FFFFFF"/>
+          <path class="pathElement" fill="#FFFFFF"/>
+          <ellipse fill="#000000" cx="64" cy="64" rx="63" ry="63"/>
+        </mask>
+        <mask id="mask-outer-ring">
+          <ellipse fill="#FFFFFF" cx="64" cy="64" rx="63" ry="63"/>
+          <ellipse fill="#000000" cx="64" cy="64" :rx="getRingSize1" :ry="getRingSize1"/>
+        </mask>
+        <mask id="mask-inner-ring">
+          <ellipse fill="#FFFFFF" cx="64" cy="64" :rx="getRingSize1" :ry="getRingSize1"/>
+          <ellipse fill="#000000" cx="64" cy="64" :rx="getRingSize2" :ry="getRingSize2"/>
+        </mask>
+
       </g>
+        <rect width="100%" height="100%" :fill="colors.outer.hex" mask="url(#mask-spikes)"/>
+        <rect width="100%" height="100%" :fill="colors.outer.hex" mask="url(#mask-outer-ring)"/>
+        <rect width="100%" height="100%" :fill="colors.inner.hex" mask="url(#mask-inner-ring)"/>
       <g>
-        <path class="pathElement" fill="#0000FF" stroke="#000000" d="M 0,0 L 0,32 L 32,0 L 0,0 Z"/>
-        <path class="pathElement" fill="#00FFFF" stroke="#000000" d="M 0,128 L 32,128 L 0,96 L 0,128 Z"/>
-        <path class="pathElement" fill="#FF00FF" stroke="#000000" d="M 128,128 L 128,96 L 96,128 L 128,128 Z"/>
-        <path class="pathElement" fill="#00FF00" stroke="#000000" d="M 128,0 L 96,0 L 128,32 L 128,0 Z"/>
       </g>
     </svg>
     <vueSlider ref="vueSlider" :reverse="false" direction="horizontal" :width="400" :height="10" v-model="width" :min="0" :max="640"/>
-    <vueSlider ref="vueSlider" :reverse="false" direction="horizontal" :width="400" :height="10" v-model="height" :min="440" :max="640"/>
+    <vueSlider ref="vueSlider" :reverse="false" direction="horizontal" :width="400" :height="10" v-model="height" :min="430" :max="640"/>
     <vueSlider ref="vueSlider" :reverse="false" direction="horizontal" :width="400" :height="10" v-model="ringSize" :min="0" :max="100"/>
   </div>
 </template>
@@ -29,10 +42,56 @@ export default {
   },
   data () {
     return {
-      width: 440,   // 0 - 64
-      height: 550,  // 44 - 64
+      width: 200,   // 0 - 64
+      height: 550,  // 43 - 64
       size: 128,
-      ringSize: [30,50]
+      ringSize: [30,50],
+      colors: {
+        inner: {
+					hex: '#2C2F33',
+					hsl: {
+						h: 144,
+						s: 0,
+						l: 1,
+						a: 1
+					},
+					hsv: {
+						h: 90,
+						s: 0,
+						v: 0,
+						a: 1
+					},
+					rgba: {
+						r: 255,
+						g: 255,
+						b: 255,
+						a: 1
+					},
+					a: 1
+				},
+        outer: {
+					hex: '#7289DA',
+					hsl: {
+						h: 227,
+						s: 0.58,
+						l: 0.65,
+						a: 1
+					},
+					hsv: {
+						h: 0,
+						s: 0,
+						v: 0,
+						a: 1
+					},
+					rgba: {
+						r: 114,
+						g: 137,
+						b: 218,
+						a: 1
+					},
+					a: 1
+				}
+      }
     }
   },
   computed: {
@@ -111,6 +170,9 @@ export default {
     width: function() {
       this.updateSpikes();
     }
+  },
+  created: function () {
+    this.updateSpikes();
   }
 }
 </script>
@@ -119,5 +181,9 @@ export default {
 <style scoped>
 #icongen {
   margin-top: 50px;
+}
+
+.icon {
+  background-image: url(../assets/ROB_128.png);
 }
 </style>
