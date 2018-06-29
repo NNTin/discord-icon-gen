@@ -3,7 +3,7 @@
     <header>
       <h1>Discord Server Icon Generator</h1>
       <p>This project adds spikes to your server icon.</p>
-      <p>If you need help, feel free joining <a href="https://discord.gg/gDHs8AV">my server</a>. Below is a code generator.</p>
+      <p>If you need help, feel free joining <a href="https://discord.gg/ZVQywBg">my server</a>. Below is a generator.</p>
     </header>
   </div>
 </template>

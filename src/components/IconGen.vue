@@ -1,12 +1,10 @@
 <template>
-  <div ref="discordIconRootElement">
-    <input v-model="width"/>
-    <input v-model="height"/>
+  <div ref="discordIconRootElement" id="icongen">
     <svg class="icon" :height="size" :width="size">
       <g>
         <ellipse fill="#FF0000" stroke="#000000" cx="64" cy="64" rx="63" ry="63"/>
-        <ellipse fill="#FFFF00" stroke="#000000" cx="64" cy="64" rx="58" ry="58"/>
-        <ellipse fill="#FFFFFF" stroke="#000000" cx="64" cy="64" rx="50" ry="50"/>
+        <ellipse fill="#FFFF00" stroke="#000000" cx="64" cy="64" :rx="getRingSize1" :ry="getRingSize1"/>
+        <ellipse fill="#FFFFFF" stroke="#000000" cx="64" cy="64" :rx="getRingSize2" :ry="getRingSize2"/>
       </g>
       <g>
         <path class="pathElement" fill="#0000FF" stroke="#000000" d="M 0,0 L 0,32 L 32,0 L 0,0 Z"/>
@@ -15,21 +13,42 @@
         <path class="pathElement" fill="#00FF00" stroke="#000000" d="M 128,0 L 96,0 L 128,32 L 128,0 Z"/>
       </g>
     </svg>
+    <vueSlider ref="vueSlider" :reverse="false" direction="horizontal" :width="400" :height="10" v-model="width" :min="0" :max="640"/>
+    <vueSlider ref="vueSlider" :reverse="false" direction="horizontal" :width="400" :height="10" v-model="height" :min="440" :max="640"/>
+    <vueSlider ref="vueSlider" :reverse="false" direction="horizontal" :width="400" :height="10" v-model="ringSize" :min="0" :max="100"/>
   </div>
 </template>
 
 <script>
+import vueSlider from 'vue-slider-component'
+
 export default {
   name: 'IconGen',
+  components: {
+    vueSlider
+  },
   data () {
     return {
-      width: 32,   // 0 - 64
-      height: 55,  // 44 - 64
-      size: 128
+      width: 440,   // 0 - 64
+      height: 550,  // 44 - 64
+      size: 128,
+      ringSize: [30,50]
+    }
+  },
+  computed: {
+    getRingSize1: {
+      get: function() {
+        return this.size/2 - this.ringSize[0]/6;
+      }
+    },
+    getRingSize2: {
+      get: function() {
+        return this.size/2 - this.ringSize[1]/6;
+      }
     }
   },
   methods: {
-    updateSVG: function() {
+    updateSpikes: function() {
       this.$nextTick(function() {
         var discordIconRootElement = this.$refs.discordIconRootElement;
         // todo: iterate over pathElement(s)
@@ -50,8 +69,8 @@ export default {
                 break;
               default:
                 var coordinates = d[i].split(',');
-                var virtualWidth = 64 - this.width;
-                var virtualHeight = 64 - this.height;
+                var virtualWidth = 64 - this.width/10;
+                var virtualHeight = 64 - this.height/10;
 
                 if (counter == 0) {
                   if (j == 0)      new_d.push([virtualHeight,virtualHeight].join(","));
@@ -87,10 +106,10 @@ export default {
   },
   watch: {
     height: function () {
-      this.updateSVG();
+      this.updateSpikes();
     },
     width: function() {
-      this.updateSVG();
+      this.updateSpikes();
     }
   }
 }
@@ -98,7 +117,7 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-h1 {
-  color: #000000;
+#icongen {
+  margin-top: 50px;
 }
 </style>

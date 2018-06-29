@@ -2,7 +2,7 @@
   <div id="app">
     <div id="top" :style="getBackgroundColor">
       <GithubCorner :discordcolor="colors.discordfill" :discordfill="colors.discordcolor"/>
-      <DiscordCorner :background="background" :discordEyes="discordEyes" customLink="#" :isRainbow="isRainbow" :animationStyle="animationStyle" id="discordcorner" :discordcolor="colors.discordfill" :discordfill="colors.discordcolor"/>
+      <DiscordCorner :background="background" :discordEyes="discordEyes" customLink="https://discord.gg/ZVQywBg" :isRainbow="isRainbow" :animationStyle="animationStyle" id="discordcorner" :discordcolor="colors.discordfill" :discordfill="colors.discordcolor"/>
       <Intro/>
     </div>
     <IconGen/>
