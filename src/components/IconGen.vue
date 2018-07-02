@@ -1,5 +1,8 @@
 <template>
   <div ref="discordIconRootElement" id="icongen">
+
+    <img :src="imageUri"/>
+
     <svg class="icon" :height="size" :width="size">
       <g>
         <mask id="mask-spikes">
@@ -26,26 +29,43 @@
       <g>
       </g>
     </svg>
+    <input v-model="imageURL" class="text" placeholder="image URL"/>
+    <button v-on:click="retrieveImageFromURL()">get image from URL</button>
+    <button v-on:click="exportToPng()" :disabled="!validUrl">export</button>
+
     <vueSlider ref="vueSlider" :reverse="false" direction="horizontal" :width="400" :height="10" v-model="width" :min="0" :max="640"/>
     <vueSlider ref="vueSlider" :reverse="false" direction="horizontal" :width="400" :height="10" v-model="height" :min="430" :max="640"/>
-    <vueSlider ref="vueSlider" :reverse="false" direction="horizontal" :width="400" :height="10" v-model="ringSize" :min="0" :max="100"/>
+    <vueSlider ref="vueSlider" :reverse="false" direction="horizontal" :width="400" :height="10" v-model="ringSize" :min="0" :max="200"/>
+
+    <chrome-picker v-model="colors.inner"/>
+    <chrome-picker v-model="colors.outer"/>
+
+
   </div>
 </template>
 
 <script>
 import vueSlider from 'vue-slider-component'
+import saveSvgAsPng from "save-svg-as-png"
+import jimp from "jimp"
+import dataUriToBuffer from "data-uri-to-buffer"
+import { Chrome } from "vue-color"
 
 export default {
   name: 'IconGen',
   components: {
-    vueSlider
+    vueSlider,
+    'chrome-picker': Chrome
   },
   data () {
     return {
-      width: 200,   // 0 - 64
-      height: 550,  // 43 - 64
+      width: 300,   // 0 - 64
+      height: 615,  // 43 - 64
       size: 128,
-      ringSize: [30,50],
+      imageURL: 'https://i.imgur.com/em9oyLF.png',
+      imageUri: 'https://i.imgur.com/nWxN3bH.png',
+      ringSize: [50,100],
+      validUrl: false, //todo: databind this to export button, if not valid disable button
       colors: {
         inner: {
 					hex: '#2C2F33',
@@ -107,6 +127,51 @@ export default {
     }
   },
   methods: {
+    exportToPng: function () {
+      var discordIconRootElement = this.$refs.discordIconRootElement;
+      var iconElement = discordIconRootElement.getElementsByClassName("icon")[0];
+
+      var result_uri;
+      var self = this
+
+      saveSvgAsPng.svgAsPngUri(iconElement, {}, function(uri) {
+
+        var buffer = dataUriToBuffer(uri);
+        jimp.read(buffer).then(function (image) {
+
+          var backgroundImageUrl = iconElement.style.backgroundImage.replace('url("', '').replace('")', '');
+
+          jimp.read(backgroundImageUrl).then(function (jimpBackgroundImage) {
+            jimp.read("https://i.imgur.com/nWxN3bH.png").then(function (blankImage) {
+              jimpBackgroundImage.resize(128,128);
+              jimpBackgroundImage.composite(image, 0, 0);
+              blankImage.composite(jimpBackgroundImage, 0, 0)
+              blankImage.getBase64(jimp.AUTO, function(err, new_uri) {
+                  self.imageUri = new_uri;
+              });
+            });
+          });
+        });
+      });
+    },
+    retrieveImageFromURL: function () {
+
+      var discordIconRootElement = this.$refs.discordIconRootElement;
+      var iconElement = discordIconRootElement.getElementsByClassName("icon")[0];
+      iconElement.style.backgroundImage = "url(" + this.imageURL + ")";
+
+      try {
+        var http = new XMLHttpRequest();
+
+        http.open('HEAD', this.imageURL, false);
+        http.send();
+      } catch(err) {
+        this.validUrl = false;
+      }
+
+      if (http.status == 200) this.validUrl = true;
+      else this.validUrl = false;
+    },
     updateSpikes: function() {
       this.$nextTick(function() {
         var discordIconRootElement = this.$refs.discordIconRootElement;
@@ -173,6 +238,9 @@ export default {
   },
   created: function () {
     this.updateSpikes();
+    this.$nextTick(function () {
+      this.retrieveImageFromURL();
+    });
   }
 }
 </script>
@@ -185,5 +253,6 @@ export default {
 
 .icon {
   background-image: url(../assets/ROB_128.png);
+  background-size: cover;
 }
 </style>
